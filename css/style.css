@@ -87,3 +87,45 @@ a{color:var(--color-primary)}
   margin-left: 4px;
   font-size: 11px;
 }
+
+/* Thursday: Packages Page */
+
+.package-card {
+  padding: 28px;
+  border: 1px solid #dbe7ea;
+  border-radius: 14px;
+  background: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(18, 52, 77, 0.10);
+}
+
+.package-price h4 {
+  color: #0e7c86;
+  font-weight: 700;
+}
+
+.included-tests {
+  background: #f7fafb;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.included-tests .list-group-item {
+  background: transparent;
+  font-size: 14px;
+  padding: 10px 5px;
+}
+
+.btn-outline-primary-lab {
+  border: 1px solid #0e7c86;
+  color: #0e7c86;
+}
+
+.btn-outline-primary-lab:hover {
+  background: #0e7c86;
+  color: #ffffff;
+}
