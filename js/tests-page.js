@@ -1,4 +1,7 @@
 
+const ITEMS_PER_PAGE = 9;
+let visibleCount = ITEMS_PER_PAGE;
+
 // Format test price
 function formatPrice(price) {
   return price === null || price === undefined
@@ -6,16 +9,79 @@ function formatPrice(price) {
     : "Rs. " + Number(price).toLocaleString("en-PK");
 }
 
+// Get filtered and sorted tests
+function getFilteredTests() {
+  const search = document.getElementById("test-search")?.value
+    .trim().toLowerCase() || "";
+
+  const category =
+    document.getElementById("category-filter")?.value || "all";
+
+  const fasting =
+    document.getElementById("fasting-filter")?.value || "all";
+
+  const sort =
+    document.getElementById("sort-filter")?.value || "default";
+
+  let filtered = tests.filter(test => {
+    const matchesSearch =
+      test.name.toLowerCase().includes(search) ||
+      test.category.toLowerCase().includes(search);
+
+    const matchesCategory =
+      category === "all" || test.category === category;
+
+    const matchesFasting =
+      fasting === "all" ||
+      (fasting === "yes" && test.fasting) ||
+      (fasting === "no" && !test.fasting);
+
+    return matchesSearch && matchesCategory && matchesFasting;
+  });
+
+  if (sort === "name") {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  if (sort === "low") {
+    filtered.sort((a, b) => {
+      if (a.price == null) return 1;
+      if (b.price == null) return -1;
+      return a.price - b.price;
+    });
+  }
+
+  if (sort === "high") {
+    filtered.sort((a, b) => {
+      if (a.price == null) return 1;
+      if (b.price == null) return -1;
+      return b.price - a.price;
+    });
+  }
+
+  return filtered;
+}
+
 // Display test cards
-function renderTests(list) {
+function renderTests() {
   const grid = document.getElementById("tests-grid");
   const count = document.getElementById("results-count");
+  const noResults = document.getElementById("no-results");
+  const loadMore = document.getElementById("load-more");
 
   if (!grid || !count) return;
 
-  count.textContent = `Showing ${list.length} tests`;
+  const filtered = getFilteredTests();
+  const displayed = filtered.slice(0, visibleCount);
 
-  grid.innerHTML = list.map(test => `
+  count.textContent =
+    `Showing ${displayed.length} of ${filtered.length} tests`;
+
+  if (noResults) {
+    noResults.classList.toggle("d-none", filtered.length !== 0);
+  }
+
+  grid.innerHTML = displayed.map(test => `
     <div class="col-12 col-md-6 col-xl-4">
       <div class="item-card test-card">
         <span class="test-category">${test.category}</span>
@@ -32,8 +98,7 @@ function renderTests(list) {
 
         ${test.fasting
           ? '<span class="fasting-label">Fasting Required</span>'
-          : ''
-        }
+          : ''}
 
         <p class="price mt-3">${formatPrice(test.price)}</p>
 
@@ -51,6 +116,15 @@ function renderTests(list) {
       </div>
     </div>
   `).join("");
+
+  if (loadMore) {
+    loadMore.classList.toggle(
+      "d-none",
+      displayed.length >= filtered.length
+    );
+  }
+
+  updateCategoryButtons();
 }
 
 // Display categories
@@ -60,25 +134,119 @@ function renderCategories() {
   const list = document.getElementById("category-list");
   const select = document.getElementById("category-filter");
 
-  if (!list || !select) return;
+  if (list) {
+    list.innerHTML = categories.map(category => `
+      <button class="category-btn"
+              type="button"
+              data-category="${category}">
+        ${category}
+      </button>
+    `).join("");
+  }
 
-  list.innerHTML = categories.map(category => `
-    <button class="category-btn"
-            type="button"
-            data-category="${category}">
-      ${category}
-    </button>
-  `).join("");
-
-  select.innerHTML += categories.map(category => `
-    <option value="${category}">${category}</option>
-  `).join("");
+  if (select) {
+    select.innerHTML = `
+      <option value="all">All Categories</option>
+      ${categories.map(category => `
+        <option value="${category}">${category}</option>
+      `).join("")}
+    `;
+  }
 }
 
-// Initialize Tests page
+// Highlight selected category
+function updateCategoryButtons() {
+  const selected =
+    document.getElementById("category-filter")?.value || "all";
+
+  document.querySelectorAll("[data-category]").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.category === selected
+    );
+  });
+}
+
+// Reset pagination and update results
+function applyFilters() {
+  visibleCount = ITEMS_PER_PAGE;
+  renderTests();
+}
+
+// Initialize page
 function initializeTestsPage() {
   renderCategories();
-  renderTests(tests);
+
+  const params = new URLSearchParams(window.location.search);
+
+  const searchInput = document.getElementById("test-search");
+  const categoryFilter = document.getElementById("category-filter");
+  const fastingFilter = document.getElementById("fasting-filter");
+  const sortFilter = document.getElementById("sort-filter");
+  const loadMore = document.getElementById("load-more");
+  const clearFilters = document.getElementById("clear-filters");
+  const categoryList = document.getElementById("category-list");
+
+  if (searchInput) {
+    searchInput.value = params.get("search") || "";
+    searchInput.addEventListener("input", applyFilters);
+  }
+
+  if (categoryFilter) {
+    const requestedCategory = params.get("category");
+
+    if (
+      requestedCategory &&
+      [...categoryFilter.options].some(
+        option => option.value === requestedCategory
+      )
+    ) {
+      categoryFilter.value = requestedCategory;
+    }
+
+    categoryFilter.addEventListener("change", applyFilters);
+  }
+
+  if (fastingFilter) {
+    fastingFilter.addEventListener("change", applyFilters);
+  }
+
+  if (sortFilter) {
+    sortFilter.addEventListener("change", applyFilters);
+  }
+
+  if (categoryList) {
+    categoryList.addEventListener("click", event => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+
+      if (categoryFilter) {
+        categoryFilter.value = button.dataset.category;
+      }
+
+      applyFilters();
+    });
+  }
+
+  if (loadMore) {
+    loadMore.addEventListener("click", () => {
+      visibleCount += ITEMS_PER_PAGE;
+      renderTests();
+    });
+  }
+
+  if (clearFilters) {
+    clearFilters.addEventListener("click", () => {
+      if (searchInput) searchInput.value = "";
+      if (categoryFilter) categoryFilter.value = "all";
+      if (fastingFilter) fastingFilter.value = "all";
+      if (sortFilter) sortFilter.value = "default";
+
+      applyFilters();
+    });
+  }
+
+  renderTests();
 }
 
 initializeTestsPage();
