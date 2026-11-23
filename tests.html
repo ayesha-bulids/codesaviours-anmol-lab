@@ -20,94 +20,66 @@
 
 <main>
 
-<section class="page-banner">
-<div class="container">
-<h1>All Tests</h1>
-<nav aria-label="breadcrumb">
-<ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="index.html">Home</a></li>
-<li class="breadcrumb-item active">Tests</li>
-</ol>
-</nav>
-</div>
-</section>
 
-<section class="section">
-<div class="container">
-
-<!-- Search and filters -->
-<div class="row g-3 mb-4">
-
-<div class="col-lg-5">
-<input type="search" id="test-search"
-class="form-control"
-placeholder="Search CBC, Sugar, Thyroid...">
+<!-- My Tests Summary Bar -->
+<div id="my-tests-summary" class="my-tests-summary d-none">
+  <div class="container d-flex justify-content-between align-items-center gap-3">
+    <span>
+      <strong id="my-tests-count">0</strong> tests selected
+    </span>
+    <button class="btn btn-accent" type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#myTestsOffcanvas">
+      View My Tests
+    </button>
+  </div>
 </div>
 
-<div class="col-md-4 col-lg-2">
-<select id="category-filter" class="form-select">
-<option value="all">All Categories</option>
-</select>
+<!-- Test Details Modal -->
+<div class="modal fade" id="testDetailsModal" tabindex="-1"
+     aria-labelledby="testDetailsTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="testDetailsTitle">Test Details</h5>
+        <button type="button" class="btn-close"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="test-details-content"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary-lab"
+                id="modal-add-test">
+          Add to My Tests
+        </button>
+        <button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="col-md-4 col-lg-2">
-<select id="fasting-filter" class="form-select">
-<option value="all">All Fasting</option>
-<option value="yes">Fasting Required</option>
-<option value="no">No Fasting</option>
-</select>
+<!-- My Tests Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1"
+     id="myTestsOffcanvas" aria-labelledby="myTestsTitle">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="myTestsTitle">My Tests</h5>
+    <button type="button" class="btn-close"
+            data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="my-tests-list">
+      <p class="text-muted">No tests selected yet.</p>
+    </div>
+    <hr>
+    <p class="fw-bold mb-0">
+      Selected tests: <span id="offcanvas-tests-count">0</span>
+    </p>
+  </div>
 </div>
-
-<div class="col-md-4 col-lg-3">
-<select id="sort-filter" class="form-select">
-<option value="default">Default Sorting</option>
-<option value="name">Name (A to Z)</option>
-<option value="low">Price (Low to High)</option>
-<option value="high">Price (High to Low)</option>
-</select>
-</div>
-
-</div>
-
-<div class="row g-4">
-
-<!-- Categories -->
-<aside class="col-lg-3">
-<h2 class="h5 mb-3">Categories</h2>
-<div id="category-list" class="category-list"></div>
-</aside>
-
-<!-- Test cards -->
-<div class="col-lg-9">
-
-<p id="results-count" class="text-muted">Showing tests</p>
-
-<div class="row g-3" id="tests-grid"></div>
-
-<div id="no-results" class="text-center py-5" hidden>
-<h3 class="h5">Test not found</h3>
-<p>Send us your prescription on WhatsApp and we'll help.</p>
-<a href="#" id="no-results-wa" class="btn btn-primary-lab">
-<i class="fa-brands fa-whatsapp"></i> WhatsApp
-</a>
-<button id="clear-filters" class="btn btn-outline-secondary">
-Clear filters
-</button>
-</div>
-
-<div class="text-center mt-4">
-<button id="load-more" class="btn btn-primary-lab">
-Load More
-</button>
-</div>
-
-</div>
-</div>
-
-</div>
-</section>
-
 </main>
+
 
 <div id="site-footer"></div>
 

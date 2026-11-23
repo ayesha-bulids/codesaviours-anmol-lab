@@ -65,3 +65,25 @@ a{color:var(--color-primary)}
 .wa-btn{bottom:16px;background:#25d366}
 .top-btn{bottom:76px;background:var(--color-primary);display:none}.top-btn.show{display:grid}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Wednesday: My Tests summary bar */
+.my-tests-summary {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1020;
+  background: #ffffff;
+  padding: 14px 0;
+  box-shadow: 0 -3px 15px rgba(18, 52, 77, 0.12);
+  border-top: 1px solid #dbe7ea;
+}
+
+#my-tests-list .border {
+  border-color: #dbe7ea !important;
+}
+
+#my-tests-badge {
+  margin-left: 4px;
+  font-size: 11px;
+}

@@ -250,3 +250,129 @@ function initializeTestsPage() {
 }
 
 initializeTestsPage();
+
+// Current test selected for modal
+let selectedModalTestId = null;
+
+// Render My Tests list
+function renderMyTests() {
+  const ids = getMyTests();
+  const selectedTests = tests.filter(test => ids.includes(test.id));
+
+  const list = document.getElementById("my-tests-list");
+  const count = document.getElementById("my-tests-count");
+  const offcanvasCount = document.getElementById("offcanvas-tests-count");
+  const summary = document.getElementById("my-tests-summary");
+
+  if (!list) return;
+
+  if (count) count.textContent = ids.length;
+  if (offcanvasCount) offcanvasCount.textContent = ids.length;
+
+  if (summary) {
+    summary.classList.toggle("d-none", ids.length === 0);
+  }
+
+  if (selectedTests.length === 0) {
+    list.innerHTML = '<p class="text-muted">No tests selected yet.</p>';
+  } else {
+    list.innerHTML = selectedTests.map(test => `
+      <div class="border rounded p-3 mb-3">
+        <h6>${test.name}</h6>
+        <p class="small text-muted mb-2">${test.category}</p>
+        <p class="small mb-2">${formatPrice(test.price)}</p>
+        <button class="btn btn-sm btn-outline-danger"
+                data-remove-test="${test.id}">
+          Remove
+        </button>
+      </div>
+    `).join("");
+  }
+}
+
+// Add test to My Tests
+function addToMyTests(id) {
+  const ids = getMyTests();
+
+  if (!ids.includes(id)) {
+    ids.push(id);
+    saveMyTests(ids);
+  }
+
+  renderMyTests();
+}
+
+// Show test details modal
+function showTestDetails(id) {
+  const test = tests.find(item => item.id === id);
+  if (!test) return;
+
+  selectedModalTestId = id;
+
+  document.getElementById("testDetailsTitle").textContent = test.name;
+
+  document.getElementById("test-details-content").innerHTML = `
+    <p><strong>Category:</strong> ${test.category}</p>
+    <p><strong>Sample Type:</strong> ${test.sampleType}</p>
+    <p><strong>Report Time:</strong> ${test.reportTime}</p>
+    <p><strong>Fasting:</strong> ${test.fasting ? "Required" : "Not required"}</p>
+    <p><strong>Price:</strong> ${formatPrice(test.price)}</p>
+    <p><strong>Description:</strong> ${test.description}</p>
+  `;
+
+  bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("testDetailsModal")
+  ).show();
+}
+
+// Handle card buttons
+document.getElementById("tests-grid")?.addEventListener("click", event => {
+  const detailsButton = event.target.closest("[data-test-details]");
+  const addButton = event.target.closest("[data-add-test]");
+
+  if (detailsButton) {
+    showTestDetails(Number(detailsButton.dataset.testDetails));
+  }
+
+  if (addButton) {
+    addToMyTests(Number(addButton.dataset.addTest));
+    addButton.textContent = "Added";
+    addButton.disabled = true;
+  }
+});
+
+// Add test from modal
+document.getElementById("modal-add-test")?.addEventListener("click", () => {
+  if (selectedModalTestId !== null) {
+    addToMyTests(selectedModalTestId);
+  }
+
+  bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("testDetailsModal")
+  ).hide();
+});
+
+// Remove test from My Tests
+document.getElementById("my-tests-list")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-remove-test]");
+  if (!button) return;
+
+  const id = Number(button.dataset.removeTest);
+  const updatedIds = getMyTests().filter(testId => testId !== id);
+
+  saveMyTests(updatedIds);
+  renderMyTests();
+
+  // Re-enable the Add button on its test card
+  const cardButton = document.querySelector(
+    `[data-add-test="${id}"]`
+  );
+
+  if (cardButton) {
+    cardButton.disabled = false;
+    cardButton.textContent = "Add to My Tests";
+  }
+});
+
+// Load saved tests when page opens
+renderMyTests();
